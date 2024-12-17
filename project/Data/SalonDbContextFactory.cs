@@ -9,15 +9,15 @@ namespace project.Data
     {
         public SalonDbContext CreateDbContext(string[] args)
         {
-            تحميل التهيئة من ملف appsettings.json
-           var configuration = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json")
-               .Build();
+            // تحميل التهيئة من ملف appsettings.json
+            var configuration = new ConfigurationBuilder()
+                .SetBasePath(Directory.GetCurrentDirectory())
+                .AddJsonFile("appsettings.json")
+                .Build();
 
             var optionsBuilder = new DbContextOptionsBuilder<SalonDbContext>();
 
-            استخدام SQL Server والاتصال من appsettings.json
+            // استخدام SQL Server والاتصال من appsettings.json
             optionsBuilder.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
 
             return new SalonDbContext(optionsBuilder.Options);
