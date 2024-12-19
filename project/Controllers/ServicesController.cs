@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using project.Data;
 using project.Models;
@@ -22,8 +21,7 @@ namespace project.Controllers
         // GET: Services
         public async Task<IActionResult> Index()
         {
-            var salonDbContext = _context.Services.Include(s => s.Salon);
-            return View(await salonDbContext.ToListAsync());
+            return View(await _context.Services.ToListAsync());
         }
 
         // GET: Services/Details/5
@@ -34,9 +32,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var service = await _context.Services
-                .Include(s => s.Salon)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var service = await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
             if (service == null)
             {
                 return NotFound();
@@ -48,16 +44,13 @@ namespace project.Controllers
         // GET: Services/Create
         public IActionResult Create()
         {
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id");
             return View();
         }
 
         // POST: Services/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Duration,Price,SalonId")] Service service)
+        public async Task<IActionResult> Create([Bind("Id,Name,Duration,Price")] Service service)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +58,6 @@ namespace project.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id", service.SalonId);
             return View(service);
         }
 
@@ -82,16 +74,13 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id", service.SalonId);
             return View(service);
         }
 
         // POST: Services/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Duration,Price,SalonId")] Service service)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Duration,Price")] Service service)
         {
             if (id != service.Id)
             {
@@ -118,7 +107,6 @@ namespace project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id", service.SalonId);
             return View(service);
         }
 
@@ -130,9 +118,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var service = await _context.Services
-                .Include(s => s.Salon)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var service = await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
             if (service == null)
             {
                 return NotFound();
@@ -150,9 +136,8 @@ namespace project.Controllers
             if (service != null)
             {
                 _context.Services.Remove(service);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

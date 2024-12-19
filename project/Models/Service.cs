@@ -6,7 +6,5 @@
         public string Name { get; set; }
         public int Duration { get; set; }
         public decimal Price { get; set; }
-        public int SalonId { get; set; }
-        public Salon Salon { get; set; }
     }
 }

@@ -7,7 +7,6 @@ namespace project.Data
     {
         public SalonDbContext(DbContextOptions<SalonDbContext> options) : base(options) { }
 
-        public DbSet<Salon> Salons { get; set; }
         public DbSet<Service> Services { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Appointment> Appointments { get; set; }

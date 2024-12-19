@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using project.Data;
 using project.Models;
@@ -22,8 +21,7 @@ namespace project.Controllers
         // GET: Employees
         public async Task<IActionResult> Index()
         {
-            var salonDbContext = _context.Employees.Include(e => e.Salon);
-            return View(await salonDbContext.ToListAsync());
+            return View(await _context.Employees.ToListAsync());
         }
 
         // GET: Employees/Details/5
@@ -34,9 +32,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees
-                .Include(e => e.Salon)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var employee = await _context.Employees.FirstOrDefaultAsync(m => m.Id == id);
             if (employee == null)
             {
                 return NotFound();
@@ -48,16 +44,13 @@ namespace project.Controllers
         // GET: Employees/Create
         public IActionResult Create()
         {
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id");
             return View();
         }
 
         // POST: Employees/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Expertise,AvailableHours,SalonId")] Employee employee)
+        public async Task<IActionResult> Create([Bind("Id,Name,Expertise,AvailableHours")] Employee employee)
         {
             if (ModelState.IsValid)
             {
@@ -65,7 +58,6 @@ namespace project.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id", employee.SalonId);
             return View(employee);
         }
 
@@ -82,16 +74,13 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id", employee.SalonId);
             return View(employee);
         }
 
         // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Expertise,AvailableHours,SalonId")] Employee employee)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Expertise,AvailableHours")] Employee employee)
         {
             if (id != employee.Id)
             {
@@ -118,7 +107,6 @@ namespace project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SalonId"] = new SelectList(_context.Salons, "Id", "Id", employee.SalonId);
             return View(employee);
         }
 
@@ -130,9 +118,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var employee = await _context.Employees
-                .Include(e => e.Salon)
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var employee = await _context.Employees.FirstOrDefaultAsync(m => m.Id == id);
             if (employee == null)
             {
                 return NotFound();
@@ -150,9 +136,8 @@ namespace project.Controllers
             if (employee != null)
             {
                 _context.Employees.Remove(employee);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 

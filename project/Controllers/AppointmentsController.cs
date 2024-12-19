@@ -49,14 +49,12 @@ namespace project.Controllers
         // GET: Appointments/Create
         public IActionResult Create()
         {
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id");
-            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Id");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name");
+            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name");
             return View();
         }
 
         // POST: Appointments/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,CustomerName,ServiceId,EmployeeId,AppointmentTime")] Appointment appointment)
@@ -67,8 +65,8 @@ namespace project.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", appointment.EmployeeId);
-            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Id", appointment.ServiceId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", appointment.EmployeeId);
+            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
             return View(appointment);
         }
 
@@ -85,14 +83,12 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", appointment.EmployeeId);
-            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Id", appointment.ServiceId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", appointment.EmployeeId);
+            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
             return View(appointment);
         }
 
         // POST: Appointments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,CustomerName,ServiceId,EmployeeId,AppointmentTime")] Appointment appointment)
@@ -122,8 +118,8 @@ namespace project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Id", appointment.EmployeeId);
-            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Id", appointment.ServiceId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees, "Id", "Name", appointment.EmployeeId);
+            ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
             return View(appointment);
         }
 
@@ -156,9 +152,8 @@ namespace project.Controllers
             if (appointment != null)
             {
                 _context.Appointments.Remove(appointment);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
