@@ -7,9 +7,37 @@
 <h1>Index</h1>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Create New</a>
 </p>
-<table class="table">
+
+<!-- نموذج البحث والتصفية -->
+<form method="get" asp-action="Index">
+    <div class="form-group">
+        <label for="searchString">Search Services:</label>
+        <input type="text" name="searchString" class="form-control" value="@ViewData["searchString"]" />
+    </div>
+    <div class="form-group">
+        <label for="minDuration">Min Duration:</label>
+        <input type="number" name="minDuration" class="form-control" value="@ViewData["minDuration"]" />
+    </div>
+    <div class="form-group">
+        <label for="maxDuration">Max Duration:</label>
+        <input type="number" name="maxDuration" class="form-control" value="@ViewData["maxDuration"]" />
+    </div>
+    <div class="form-group">
+        <label for="minPrice">Min Price:</label>
+        <input type="number" name="minPrice" class="form-control" step="0.01" value="@ViewData["minPrice"]" />
+    </div>
+    <div class="form-group">
+        <label for="maxPrice">Max Price:</label>
+        <input type="number" name="maxPrice" class="form-control" step="0.01" value="@ViewData["maxPrice"]" />
+    </div>
+    <button type="submit" class="btn btn-primary">Search</button>
+    <a asp-action="Index" class="btn btn-secondary">Reset</a>
+</form>
+
+<!-- جدول عرض البيانات -->
+<table class="table mt-4">
     <thead>
         <tr>
             <th>
@@ -21,29 +49,28 @@
             <th>
                 @Html.DisplayNameFor(model => model.Price)
             </th>
-            
             <th></th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Duration)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-           
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Duration)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Price)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

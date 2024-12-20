@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using project.Data;
 using project.Models;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
 
 namespace project.Controllers
 {
@@ -19,9 +19,18 @@ namespace project.Controllers
         }
 
         // GET: Employees
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString)
         {
-            return View(await _context.Employees.ToListAsync());
+            // جلب البيانات من قاعدة البيانات
+            var employees = _context.Employees.AsQueryable();
+
+            // تطبيق البحث إذا كانت هناك كلمة مفتاحية
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                employees = employees.Where(e => e.Name.Contains(searchString) || e.Expertise.Contains(searchString));
+            }
+
+            return View(await employees.ToListAsync());
         }
 
         // GET: Employees/Details/5

@@ -1,53 +1,52 @@
 ﻿@model IEnumerable<project.Models.Appointment>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Appointments";
 }
 
-<h1>Index</h1>
+<h1>Appointments</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+<form method="get" asp-action="Index">
+    <div class="form-group">
+        <label for="searchString">Search by Customer Name:</label>
+        <input type="text" name="searchString" class="form-control" value="@ViewData["searchString"]" />
+    </div>
+    <div class="form-group">
+        <label for="startDate">Start Date:</label>
+        <input type="date" name="startDate" class="form-control" value="@ViewData["startDate"]" />
+    </div>
+    <div class="form-group">
+        <label for="endDate">End Date:</label>
+        <input type="date" name="endDate" class="form-control" value="@ViewData["endDate"]" />
+    </div>
+    <button type="submit" class="btn btn-primary">Filter</button>
+    <a asp-action="Index" class="btn btn-secondary">Reset</a>
+</form>
+
 <table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CustomerName)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Service)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Employee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AppointmentTime)
-            </th>
-            <th></th>
+            <th>Customer Name</th>
+            <th>Service</th>
+            <th>Employee</th>
+            <th>Appointment Time</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CustomerName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Service.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Employee.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AppointmentTime)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.CustomerName</td>
+                <td>@item.Service?.Name</td>
+                <td>@item.Employee?.Name</td>
+                <td>@item.AppointmentTime.ToString("g")</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

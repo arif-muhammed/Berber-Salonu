@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -19,9 +18,41 @@ namespace project.Controllers
         }
 
         // GET: Services
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string searchString, int? minDuration, int? maxDuration, decimal? minPrice, decimal? maxPrice)
         {
-            return View(await _context.Services.ToListAsync());
+            // جلب البيانات
+            var services = _context.Services.AsQueryable();
+
+            // تطبيق الفلاتر
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                services = services.Where(s => s.Name.Contains(searchString));
+            }
+            if (minDuration.HasValue)
+            {
+                services = services.Where(s => s.Duration >= minDuration);
+            }
+            if (maxDuration.HasValue)
+            {
+                services = services.Where(s => s.Duration <= maxDuration);
+            }
+            if (minPrice.HasValue)
+            {
+                services = services.Where(s => s.Price >= minPrice);
+            }
+            if (maxPrice.HasValue)
+            {
+                services = services.Where(s => s.Price <= maxPrice);
+            }
+
+            // تمرير القيم إلى ViewData
+            ViewData["searchString"] = searchString;
+            ViewData["minDuration"] = minDuration;
+            ViewData["maxDuration"] = maxDuration;
+            ViewData["minPrice"] = minPrice;
+            ViewData["maxPrice"] = maxPrice;
+
+            return View(await services.ToListAsync());
         }
 
         // GET: Services/Details/5
