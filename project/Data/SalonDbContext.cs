@@ -10,6 +10,8 @@ namespace project.Data
         public DbSet<Service> Services { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
+        public DbSet<Customer> Customers { get; set; } // إضافة جدول العملاء
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
