@@ -10,12 +10,13 @@ namespace project.Data
         public DbSet<Service> Services { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Appointment> Appointments { get; set; }
-        public DbSet<Customer> Customers { get; set; } // إضافة جدول العملاء
+        public DbSet<Customer> Customers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // تعطيل Cascade Delete على العلاقات
+            base.OnModelCreating(modelBuilder);
+
             modelBuilder.Entity<Appointment>()
                 .HasOne(a => a.Service)
                 .WithMany()
@@ -26,7 +27,7 @@ namespace project.Data
                 .HasOne(a => a.Employee)
                 .WithMany()
                 .HasForeignKey(a => a.EmployeeId)
-                .OnDelete(DeleteBehavior.Restrict); // تعيين DeleteBehavior.Restrict
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }
