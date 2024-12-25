@@ -4,25 +4,24 @@ using project.Models;
 
 namespace project.Models
 {
-	public class Appointment
-	{
-		public int Id { get; set; }
+    public class Appointment
+    {
+        public int Id { get; set; }
 
-		[Required(ErrorMessage = "Customer Name is required")]
-		[StringLength(100, ErrorMessage = "Customer Name cannot exceed 100 characters")]
-		public string CustomerName { get; set; }
+        [Required(ErrorMessage = "Customer Name is required")]
+        public int CustomerId { get; set; } // Foreign Key
+        public User Customer { get; set; } // Navigation Property
 
-		[Required(ErrorMessage = "Service is required")]
-		public int ServiceId { get; set; }
-		public Service Service { get; set; } // Navigation Property for Service
+        [Required(ErrorMessage = "Service is required")]
+        public int ServiceId { get; set; }
+        public Service Service { get; set; }
 
-		[Required(ErrorMessage = "Employee is required")]
-		public int EmployeeId { get; set; }
-		public Employee Employee { get; set; } // Navigation Property for Employee
+        [Required(ErrorMessage = "Employee1 is required")]
+        public int EmployeeId { get; set; }
+        public Employee1 Employee { get; set; }
 
-		[Required(ErrorMessage = "Appointment time is required")]
-		[DataType(DataType.DateTime, ErrorMessage = "Invalid date and time format")]
-		[FutureDate(ErrorMessage = "Appointment time must be in the future")]
-		public DateTime AppointmentTime { get; set; }
-	}
+        [Required(ErrorMessage = "Appointment time is required")]
+        [DataType(DataType.DateTime)]
+        public DateTime AppointmentTime { get; set; }
+    }
 }

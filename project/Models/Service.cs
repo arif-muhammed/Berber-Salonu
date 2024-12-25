@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace project.Models
 {
@@ -6,14 +7,19 @@ namespace project.Models
     {
         public int Id { get; set; }
 
-        [Required(ErrorMessage = "Name is required")]
-        [StringLength(100, ErrorMessage = "Name cannot exceed 100 characters")]
+        [Required(ErrorMessage = "Service name is required")]
+        [StringLength(100, ErrorMessage = "Service name cannot exceed 100 characters")]
         public string Name { get; set; }
 
-        [Range(1, 120, ErrorMessage = "Duration must be between 1 and 120 minutes")]
+        [Required(ErrorMessage = "Price is required")]
+        [Range(0, double.MaxValue, ErrorMessage = "Price must be a positive value")]
+        public double Price { get; set; }
+
+        [Required(ErrorMessage = "Duration is required")]
+        [Range(1, 480, ErrorMessage = "Duration must be between 1 and 480 minutes")]
         public int Duration { get; set; }
 
-        [Range(0.01, double.MaxValue, ErrorMessage = "Price must be greater than 0")]
-        public decimal Price { get; set; }
+        public ICollection<Employee1> Employees { get; set; } = new List<Employee1>();
+
     }
 }

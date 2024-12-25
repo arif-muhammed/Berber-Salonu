@@ -1,74 +1,44 @@
 ﻿@model IEnumerable<project.Models.Service>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Services";
 }
 
-<h1>Index</h1>
+<h1>Services</h1>
 
 <p>
-    <a asp-action="Create" class="btn btn-primary">Create New</a>
+    <a asp-action="Create" class="btn btn-primary">Add New Service</a>
 </p>
 
-<!-- نموذج البحث والتصفية -->
-<form method="get" asp-action="Index">
-    <div class="form-group">
-        <label for="searchString">Search Services:</label>
-        <input type="text" name="searchString" class="form-control" value="@ViewData["searchString"]" />
-    </div>
-    <div class="form-group">
-        <label for="minDuration">Min Duration:</label>
-        <input type="number" name="minDuration" class="form-control" value="@ViewData["minDuration"]" />
-    </div>
-    <div class="form-group">
-        <label for="maxDuration">Max Duration:</label>
-        <input type="number" name="maxDuration" class="form-control" value="@ViewData["maxDuration"]" />
-    </div>
-    <div class="form-group">
-        <label for="minPrice">Min Price:</label>
-        <input type="number" name="minPrice" class="form-control" step="0.01" value="@ViewData["minPrice"]" />
-    </div>
-    <div class="form-group">
-        <label for="maxPrice">Max Price:</label>
-        <input type="number" name="maxPrice" class="form-control" step="0.01" value="@ViewData["maxPrice"]" />
-    </div>
-    <button type="submit" class="btn btn-primary">Search</button>
-    <a asp-action="Index" class="btn btn-secondary">Reset</a>
-</form>
-
-<!-- جدول عرض البيانات -->
-<table class="table mt-4">
+<table class="table">
     <thead>
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Duration)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th></th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Duration</th>
+            <th>Employees</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in Model)
+        @foreach (var service in Model)
         {
             <tr>
+                <td>@service.Name</td>
+                <td>@service.Price</td>
+                <td>@service.Duration</td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Name)
+                    <ul>
+                        @foreach (var employee in service.Employees)
+                        {
+                            <li>@employee.Name</li>
+                        }
+                    </ul>
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Duration)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Price)
-                </td>
-                <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@service.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Details" asp-route-id="@service.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Delete" asp-route-id="@service.Id" class="btn btn-sm btn-danger">Delete</a>
                 </td>
             </tr>
         }

@@ -20,10 +20,10 @@ namespace project.Controllers
         // عرض جميع العملاء
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Customers.ToListAsync());
+            return View(await _context.Users.ToListAsync());
         }
 
-        // عرض تفاصيل العميل
+        // عرض تفاصيل العميل 
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -31,7 +31,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var customer = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (customer == null)
             {
@@ -50,7 +50,7 @@ namespace project.Controllers
         // معالجة إنشاء عميل جديد
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone")] Customer customer)
+        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone")] User customer)
         {
             if (ModelState.IsValid)
             {
@@ -69,7 +69,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _context.Users.FindAsync(id);
             if (customer == null)
             {
                 return NotFound();
@@ -80,7 +80,7 @@ namespace project.Controllers
         // معالجة تعديل العميل
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone")] Customer customer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone")] User customer)
         {
             if (id != customer.Id)
             {
@@ -118,7 +118,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var customer = await _context.Customers
+            var customer = await _context.Users
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (customer == null)
             {
@@ -133,10 +133,10 @@ namespace project.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var customer = await _context.Customers.FindAsync(id);
+            var customer = await _context.Users.FindAsync(id);
             if (customer != null)
             {
-                _context.Customers.Remove(customer);
+                _context.Users.Remove(customer);
                 await _context.SaveChangesAsync();
             }
             return RedirectToAction(nameof(Index));
@@ -144,7 +144,7 @@ namespace project.Controllers
 
         private bool CustomerExists(int id)
         {
-            return _context.Customers.Any(e => e.Id == id);
+            return _context.Users.Any(e => e.Id == id);
         }
     }
 }

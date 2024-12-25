@@ -37,7 +37,7 @@
         @foreach (var item in Model)
         {
             <tr>
-                <td>@item.CustomerName</td>
+                <td>@item.Customer?.FullName</td>
                 <td>@item.Service?.Name</td>
                 <td>@item.Employee?.Name</td>
                 <td>@item.AppointmentTime.ToString("g")</td>

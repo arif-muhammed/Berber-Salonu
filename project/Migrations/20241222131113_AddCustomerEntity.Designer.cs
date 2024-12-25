@@ -82,7 +82,7 @@ namespace project.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("project.Models.Employee", b =>
+            modelBuilder.Entity("project.Models.Employee1", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -136,7 +136,7 @@ namespace project.Migrations
 
             modelBuilder.Entity("project.Models.Appointment", b =>
                 {
-                    b.HasOne("project.Models.Employee", "Employee")
+                    b.HasOne("project.Models.Employee1", "Employee1")
                         .WithMany()
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -148,7 +148,7 @@ namespace project.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Employee");
+                    b.Navigation("Employee1");
 
                     b.Navigation("Service");
                 });

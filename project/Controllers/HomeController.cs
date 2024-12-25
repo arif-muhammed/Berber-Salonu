@@ -28,7 +28,7 @@ namespace project.Controllers
 
         public IActionResult Dashboard()
         {
-            var employeeCount = _context.Employees.Count();
+            var employeeCount = _context.Employees1.Count();
             var serviceCount = _context.Services.Count();
             var appointmentCount = _context.Appointments.Count();
 

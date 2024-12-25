@@ -1,10 +1,9 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using project.Data;
 using project.Models;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace project.Controllers
 {
@@ -17,82 +16,59 @@ namespace project.Controllers
             _context = context;
         }
 
-        // GET: Services
-        public async Task<IActionResult> Index(string searchString, int? minDuration, int? maxDuration, decimal? minPrice, decimal? maxPrice)
+        // عرض جميع الخدمات
+        public async Task<IActionResult> Index()
         {
-            // جلب البيانات
-            var services = _context.Services.AsQueryable();
-
-            // تطبيق الفلاتر
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                services = services.Where(s => s.Name.Contains(searchString));
-            }
-            if (minDuration.HasValue)
-            {
-                services = services.Where(s => s.Duration >= minDuration);
-            }
-            if (maxDuration.HasValue)
-            {
-                services = services.Where(s => s.Duration <= maxDuration);
-            }
-            if (minPrice.HasValue)
-            {
-                services = services.Where(s => s.Price >= minPrice);
-            }
-            if (maxPrice.HasValue)
-            {
-                services = services.Where(s => s.Price <= maxPrice);
-            }
-
-            // تمرير القيم إلى ViewData
-            ViewData["searchString"] = searchString;
-            ViewData["minDuration"] = minDuration;
-            ViewData["maxDuration"] = maxDuration;
-            ViewData["minPrice"] = minPrice;
-            ViewData["maxPrice"] = maxPrice;
-
-            return View(await services.ToListAsync());
+            var services = await _context.Services.Include(s => s.Employees).ToListAsync();
+            return View(services);
         }
 
-        // GET: Services/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var service = await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
-            if (service == null)
-            {
-                return NotFound();
-            }
-
-            return View(service);
-        }
-
-        // GET: Services/Create
+        // عرض صفحة إنشاء خدمة جديدة
         public IActionResult Create()
         {
+            ViewData["Employees"] = _context.Employees1.ToList(); // تحميل قائمة الموظفين
             return View();
         }
 
-        // POST: Services/Create
+        // معالجة إنشاء خدمة جديدة
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Duration,Price")] Service service)
+        public async Task<IActionResult> Create([Bind("Id,Name,Price,Duration")] Service service, int[] selectedEmployees)
         {
+            // طباعة قائمة الموظفين المحددين إلى وحدة التحكم
+            Console.WriteLine($"Selected Employees: {string.Join(", ", selectedEmployees ?? new int[0])}");
+
             if (ModelState.IsValid)
             {
+                if (selectedEmployees != null && selectedEmployees.Length > 0)
+                {
+                    // ربط الموظفين بالخدمة
+                    service.Employees = _context.Employees1
+                                                .Where(e => selectedEmployees.Contains(e.Id))
+                                                .ToList();
+                }
+
+                // حفظ الخدمة في قاعدة البيانات
                 _context.Add(service);
                 await _context.SaveChangesAsync();
+
+                // إعادة التوجيه إلى صفحة Index
                 return RedirectToAction(nameof(Index));
             }
+
+            // طباعة أخطاء النموذج إلى وحدة التحكم
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                Console.WriteLine($"ModelState Error: {error.ErrorMessage}");
+            }
+
+            // إعادة تحميل الموظفين في حالة وجود أخطاء
+            ViewData["Employees"] = _context.Employees1.ToList();
             return View(service);
         }
 
-        // GET: Services/Edit/5
+
+        // عرض صفحة تعديل الخدمة
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -100,18 +76,20 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var service = await _context.Services.FindAsync(id);
+            var service = await _context.Services.Include(s => s.Employees).FirstOrDefaultAsync(s => s.Id == id);
             if (service == null)
             {
                 return NotFound();
             }
+
+            ViewData["Employees"] = _context.Employees1.ToList();
             return View(service);
         }
 
-        // POST: Services/Edit/5
+        // معالجة تعديل الخدمة
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Duration,Price")] Service service)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Price,Duration")] Service service, int[] selectedEmployees)
         {
             if (id != service.Id)
             {
@@ -122,7 +100,21 @@ namespace project.Controllers
             {
                 try
                 {
-                    _context.Update(service);
+                    var existingService = await _context.Services.Include(s => s.Employees).FirstOrDefaultAsync(s => s.Id == id);
+
+                    if (existingService == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // تحديث البيانات الأساسية
+                    existingService.Name = service.Name;
+                    existingService.Price = service.Price;
+                    existingService.Duration = service.Duration;
+
+                    // تحديث الموظفين المرتبطين بالخدمة
+                    existingService.Employees = _context.Employees1.Where(e => selectedEmployees.Contains(e.Id)).ToList();
+
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
@@ -138,10 +130,12 @@ namespace project.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+
+            ViewData["Employees"] = _context.Employees1.ToList();
             return View(service);
         }
 
-        // GET: Services/Delete/5
+        // عرض صفحة حذف الخدمة
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -149,7 +143,7 @@ namespace project.Controllers
                 return NotFound();
             }
 
-            var service = await _context.Services.FirstOrDefaultAsync(m => m.Id == id);
+            var service = await _context.Services.Include(s => s.Employees).FirstOrDefaultAsync(s => s.Id == id);
             if (service == null)
             {
                 return NotFound();
@@ -158,12 +152,12 @@ namespace project.Controllers
             return View(service);
         }
 
-        // POST: Services/Delete/5
+        // تأكيد حذف الخدمة
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var service = await _context.Services.FindAsync(id);
+            var service = await _context.Services.Include(s => s.Employees).FirstOrDefaultAsync(s => s.Id == id);
             if (service != null)
             {
                 _context.Services.Remove(service);
