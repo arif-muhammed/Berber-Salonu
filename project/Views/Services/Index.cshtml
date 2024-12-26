@@ -25,8 +25,8 @@
         {
             <tr>
                 <td>@service.Name</td>
-                <td>@service.Price</td>
-                <td>@service.Duration</td>
+                <td>@service.Price.ToString("F2")$</td>
+                <td>@project.Helpers.TimeHelper.FormatDuration(service.Duration)</td>
                 <td>
                     <ul>
                         @foreach (var employee in service.Employees)
@@ -37,7 +37,6 @@
                 </td>
                 <td>
                     <a asp-action="Edit" asp-route-id="@service.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-action="Details" asp-route-id="@service.Id" class="btn btn-sm btn-info">Details</a>
                     <a asp-action="Delete" asp-route-id="@service.Id" class="btn btn-sm btn-danger">Delete</a>
                 </td>
             </tr>

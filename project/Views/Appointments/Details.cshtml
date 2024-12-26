@@ -1,0 +1,21 @@
+﻿public async Task<IActionResult>
+    Details(int? id)
+    {
+    if (id == null)
+    {
+    return NotFound();
+    }
+
+    var appointment = await _context.Appointments
+    .Include(a => a.Customer) // تضمين العميل
+    .Include(a => a.Employee) // تضمين الموظف
+    .Include(a => a.Service)  // تضمين الخدمة
+    .FirstOrDefaultAsync(m => m.Id == id);
+
+    if (appointment == null)
+    {
+    return NotFound();
+    }
+
+    return View(appointment);
+    }

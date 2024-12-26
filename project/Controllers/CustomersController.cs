@@ -50,7 +50,7 @@ namespace project.Controllers
         // معالجة إنشاء عميل جديد
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,Phone")] User customer)
+        public async Task<IActionResult> Create([Bind("Id,FullName,Email,Password")] User customer)
         {
             if (ModelState.IsValid)
             {
@@ -80,7 +80,7 @@ namespace project.Controllers
         // معالجة تعديل العميل
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Phone")] User customer)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Email,Password")] User customer)
         {
             if (id != customer.Id)
             {

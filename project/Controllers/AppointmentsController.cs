@@ -57,6 +57,7 @@ namespace project.Controllers
         // GET: Appointments/Create
         public IActionResult Create()
         {
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "FullName");
             ViewData["EmployeeId"] = new SelectList(_context.Employees1, "Id", "Name");
             ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name");
             return View();
@@ -65,19 +66,34 @@ namespace project.Controllers
         // POST: Appointments/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,CustomerId,ServiceId,EmployeeId,AppointmentTime")] Appointment appointment)
+        public async Task<IActionResult> Create([Bind("CustomerId,ServiceId,EmployeeId,AppointmentTime")] Appointment appointment)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(appointment);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Appointments.Add(appointment);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError(string.Empty, $"Error saving data: {ex.Message}");
+                }
+            }
+            else
+            {
+                // رسالة توضح الأخطاء في المدخلات
+                ModelState.AddModelError(string.Empty, "Invalid data. Please check all fields.");
             }
 
-            ViewData["EmployeeId"] = new SelectList(_context.Employees1, "Id", "Name", appointment.EmployeeId);
+            ViewData["CustomerId"] = new SelectList(_context.Users, "Id", "Name", appointment.CustomerId);
             ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
+            ViewData["EmployeeId"] = new SelectList(_context.Employees1, "Id", "Name", appointment.EmployeeId);
+
             return View(appointment);
         }
+
 
         // GET: Appointments/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -92,7 +108,7 @@ namespace project.Controllers
             {
                 return NotFound();
             }
-
+            ViewData["CustomerId"] = new SelectList(_context.Employees1, "Id", "Name", appointment.CustomerId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees1, "Id", "Name", appointment.EmployeeId);
             ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
             return View(appointment);
@@ -129,7 +145,7 @@ namespace project.Controllers
 
                 return RedirectToAction(nameof(Index));
             }
-
+            ViewData["CustomerId"] = new SelectList(_context.Employees1, "Id", "Name", appointment.CustomerId);
             ViewData["EmployeeId"] = new SelectList(_context.Employees1, "Id", "Name", appointment.EmployeeId);
             ViewData["ServiceId"] = new SelectList(_context.Services, "Id", "Name", appointment.ServiceId);
             return View(appointment);

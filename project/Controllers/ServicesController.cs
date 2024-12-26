@@ -113,8 +113,18 @@ namespace project.Controllers
                     existingService.Duration = service.Duration;
 
                     // تحديث الموظفين المرتبطين بالخدمة
-                    existingService.Employees = _context.Employees1.Where(e => selectedEmployees.Contains(e.Id)).ToList();
+                    if (selectedEmployees != null)
+                    {
+                        // إزالة جميع الموظفين الحاليين وإضافة الموظفين المحددين
+                        existingService.Employees.Clear();
+                        existingService.Employees = _context.Employees1.Where(e => selectedEmployees.Contains(e.Id)).ToList();
+                    }
+                    else
+                    {
+                        existingService.Employees.Clear(); // إذا لم يتم تحديد موظفين
+                    }
 
+                    // حفظ التعديلات
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
