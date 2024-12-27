@@ -16,7 +16,6 @@ namespace project.Controllers
             _context = context;
         }
 
-        // عرض جميع الخدمات
         public async Task<IActionResult> Index()
         {
             var services = await _context.Services.Include(s => s.Employees).ToListAsync();
