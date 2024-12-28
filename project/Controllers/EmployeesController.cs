@@ -1,146 +1,164 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using project.Data;
-using project.Models;
-using System.Linq;
-using System.Threading.Tasks;
+using Hairdresser_Website.Data;
+using Hairdresser_Website.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore; // Don't forget to include this
 
-namespace project.Controllers
+namespace Hairdresser_Website.Controllers
 {
-    public class EmployeesController : Controller
+ //   [Authorize(Roles = "admin")]
+    public class EmployeeController : Controller
     {
         private readonly SalonDbContext _context;
 
-        public EmployeesController(SalonDbContext context)
+        public EmployeeController(SalonDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string searchString)
+        public IActionResult Index()
         {
-            var employees = _context.Employees1.AsQueryable();
-
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                employees = employees.Where(e => e.Name.Contains(searchString) || e.Email.Contains(searchString));
-            }
-
-            return View(await employees.ToListAsync());
+            var employees = _context.Employees
+                .Include(e => e.Salon)
+                .Include(e => e.EmployeeAvailabilities) // Eagerly load Availabilities
+                .ToList();
+            return View(employees);
         }
 
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var employee = await _context.Employees1.FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
-
-            return View(employee);
-        }
-
+        [HttpGet]
         public IActionResult Create()
         {
+            ViewBag.Salons = new SelectList(_context.Salons, "SalonId", "Name");
             return View();
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name,Email,Password,AvailableHours,StartDate,EndDate")] Employee1 employee)
+        public IActionResult Create(Employee employee)
         {
+            // Remove validation errors for navigation properties
+            ModelState.Remove("Salon");
+            ModelState.Remove("Appointments");
+
+            if (employee.EmployeeAvailabilities != null)
+            {
+                for (int i = 0; i < employee.EmployeeAvailabilities.Count; i++)
+                {
+                    ModelState.Remove($"EmployeeAvailabilities[{i}].Employee");
+                }
+            }
+
             if (ModelState.IsValid)
             {
-                _context.Add(employee);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.Employees.Add(employee);
+                _context.SaveChanges();
+                return RedirectToAction("Index");
             }
+
+            ViewBag.Salons = new SelectList(_context.Salons, "SalonId", "Name", employee.SalonId);
             return View(employee);
         }
 
-        public async Task<IActionResult> Edit(int? id)
+        [HttpGet]
+        public IActionResult Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var employee = _context.Employees
+                .Include(e => e.EmployeeAvailabilities)
+                .FirstOrDefault(e => e.EmployeeId == id);
 
-            var employee = await _context.Employees1.FindAsync(id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
+            if (employee == null) return NotFound();
+
+            ViewBag.Salons = new SelectList(_context.Salons, "SalonId", "Name", employee.SalonId);
             return View(employee);
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name,Email,Password,AvailableHours,StartDate,EndDate")] Employee1 employee)
+        public IActionResult Edit(Employee employee)
         {
-            if (id != employee.Id)
+            // Remove validation errors for navigation properties
+            ModelState.Remove("Salon");
+            ModelState.Remove("Appointments");
+
+            if (employee.EmployeeAvailabilities != null)
             {
-                return NotFound();
+                for (int i = 0; i < employee.EmployeeAvailabilities.Count; i++)
+                {
+                    ModelState.Remove($"EmployeeAvailabilities[{i}].Employee");
+                }
             }
 
             if (ModelState.IsValid)
             {
-                try
+                var existingEmployee = _context.Employees
+                    .Include(e => e.EmployeeAvailabilities)
+                    .FirstOrDefault(e => e.EmployeeId == employee.EmployeeId);
+
+                if (existingEmployee == null)
                 {
-                    _context.Update(employee);
-                    await _context.SaveChangesAsync();
+                    return NotFound();
                 }
-                catch (DbUpdateConcurrencyException)
+
+                // Update scalar properties
+                existingEmployee.Name = employee.Name;
+                existingEmployee.Expertise = employee.Expertise;
+                existingEmployee.SalonId = employee.SalonId;
+
+                // Update availabilities
+                foreach (var existingAvailability in existingEmployee.EmployeeAvailabilities.ToList())
                 {
-                    if (!EmployeeExists(employee.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    _context.Remove(existingAvailability);
                 }
-                return RedirectToAction(nameof(Index));
+
+                foreach (var availability in employee.EmployeeAvailabilities)
+                {
+                    existingEmployee.EmployeeAvailabilities.Add(new EmployeeAvailability
+                    {
+                        DayOfWeek = availability.DayOfWeek,
+                        StartTime = availability.StartTime,
+                        EndTime = availability.EndTime
+                    });
+                }
+
+                _context.SaveChanges();
+                return RedirectToAction("Index");
             }
+
+            ViewBag.Salons = new SelectList(_context.Salons, "SalonId", "Name", employee.SalonId);
             return View(employee);
         }
 
-        public async Task<IActionResult> Delete(int? id)
+        [HttpGet]
+        public IActionResult Delete(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var employee = _context.Employees
+                .Include(e => e.Salon)
+                .Include(e => e.EmployeeAvailabilities)
+                .FirstOrDefault(e => e.EmployeeId == id);
 
-            var employee = await _context.Employees1.FirstOrDefaultAsync(m => m.Id == id);
-            if (employee == null)
-            {
-                return NotFound();
-            }
+            if (employee == null) return NotFound();
 
             return View(employee);
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            var employee = await _context.Employees1.FindAsync(id);
+            var employee = _context.Employees
+                .Include(e => e.EmployeeAvailabilities)
+                .FirstOrDefault(e => e.EmployeeId == id);
+
             if (employee != null)
             {
-                _context.Employees1.Remove(employee);
-                await _context.SaveChangesAsync();
-            }
-            return RedirectToAction(nameof(Index));
-        }
+                // Remove associated availabilities first
+                _context.EmployeeAvailability.RemoveRange(employee.EmployeeAvailabilities);
 
-        private bool EmployeeExists(int id)
-        {
-            return _context.Employees1.Any(e => e.Id == id);
+                // Then remove the employee
+                _context.Employees.Remove(employee);
+
+                _context.SaveChanges();
+            }
+
+            return RedirectToAction("Index");
         }
     }
 }
