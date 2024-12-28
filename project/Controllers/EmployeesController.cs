@@ -3,11 +3,10 @@ using Hairdresser_Website.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore; // Don't forget to include this
+using Microsoft.EntityFrameworkCore; 
 
 namespace Hairdresser_Website.Controllers
 {
- //   [Authorize(Roles = "admin")]
     public class EmployeeController : Controller
     {
         private readonly SalonDbContext _context;
@@ -21,7 +20,7 @@ namespace Hairdresser_Website.Controllers
         {
             var employees = _context.Employees
                 .Include(e => e.Salon)
-                .Include(e => e.EmployeeAvailabilities) // Eagerly load Availabilities
+                .Include(e => e.EmployeeAvailabilities) 
                 .ToList();
             return View(employees);
         }
@@ -36,7 +35,6 @@ namespace Hairdresser_Website.Controllers
         [HttpPost]
         public IActionResult Create(Employee employee)
         {
-            // Remove validation errors for navigation properties
             ModelState.Remove("Salon");
             ModelState.Remove("Appointments");
 
@@ -75,7 +73,6 @@ namespace Hairdresser_Website.Controllers
         [HttpPost]
         public IActionResult Edit(Employee employee)
         {
-            // Remove validation errors for navigation properties
             ModelState.Remove("Salon");
             ModelState.Remove("Appointments");
 
@@ -98,12 +95,10 @@ namespace Hairdresser_Website.Controllers
                     return NotFound();
                 }
 
-                // Update scalar properties
                 existingEmployee.Name = employee.Name;
                 existingEmployee.Expertise = employee.Expertise;
                 existingEmployee.SalonId = employee.SalonId;
 
-                // Update availabilities
                 foreach (var existingAvailability in existingEmployee.EmployeeAvailabilities.ToList())
                 {
                     _context.Remove(existingAvailability);
@@ -149,10 +144,8 @@ namespace Hairdresser_Website.Controllers
 
             if (employee != null)
             {
-                // Remove associated availabilities first
                 _context.EmployeeAvailability.RemoveRange(employee.EmployeeAvailabilities);
 
-                // Then remove the employee
                 _context.Employees.Remove(employee);
 
                 _context.SaveChanges();
